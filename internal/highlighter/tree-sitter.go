@@ -8,15 +8,22 @@ import (
 
 	sitter "github.com/smacker/go-tree-sitter"
 	tsbash "github.com/smacker/go-tree-sitter/bash"
+	tscss "github.com/smacker/go-tree-sitter/css"
 	tsgo "github.com/smacker/go-tree-sitter/golang"
+	tshtml "github.com/smacker/go-tree-sitter/html"
 	tslua "github.com/smacker/go-tree-sitter/lua"
+	tssvelte "github.com/smacker/go-tree-sitter/svelte"
 )
 
+// TODO: finding a way to dynamically generate this list from code blocks would have been cool.
 var langs = map[string]*sitter.Language{
-	"go":   tsgo.GetLanguage(),
-	"bash": tsbash.GetLanguage(),
-	"sh":   tsbash.GetLanguage(),
-	"lua":  tslua.GetLanguage(),
+	"go":     tsgo.GetLanguage(),
+	"bash":   tsbash.GetLanguage(),
+	"sh":     tsbash.GetLanguage(),
+	"lua":    tslua.GetLanguage(),
+	"html":   tshtml.GetLanguage(),
+	"css":    tscss.GetLanguage(),
+	"svelte": tssvelte.GetLanguage(),
 }
 
 func Highlight(ctx context.Context, code, lang string) (string, error) {

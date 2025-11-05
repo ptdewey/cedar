@@ -21,37 +21,6 @@ type Page struct {
 	Content  string         `json:"content"`
 }
 
-func generateSlug(title string) string {
-	slug := strings.ToLower(strings.TrimSpace(title))
-	slug = strings.ReplaceAll(slug, " ", "-")
-	slug = strings.ReplaceAll(slug, ".", "")
-	return slug
-}
-
-func parseFrontMatter(content []byte) (map[string]any, []byte, error) {
-	contentStr := string(content)
-	if !strings.HasPrefix(contentStr, "---") {
-		return nil, content, nil
-	}
-	parts := strings.SplitN(contentStr, "---", 3)
-	if len(parts) < 3 {
-		return nil, content, fmt.Errorf("invalid front-matter format")
-	}
-	var metadata map[string]any
-	if err := yaml.Unmarshal([]byte(parts[1]), &metadata); err != nil {
-		return nil, nil, err
-	}
-	return metadata, []byte(parts[2]), nil
-}
-
-func getReadingTime(text string) int {
-	words := strings.Fields(text)
-	wordCount := len(words)
-
-	// reading/speaking rate
-	wordsPerMinute := 200.0
-	return int(math.Round(float64(wordCount) / wordsPerMinute))
-}
 func ProcessMarkdownFile(path string) (Page, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -62,14 +31,7 @@ func ProcessMarkdownFile(path string) (Page, error) {
 	if err != nil {
 		return Page{}, err
 	} else if metadata == nil {
-		_, filename := filepath.Split(path)
-		filename = strings.SplitN(filename, ".", 1)[0]
-		// TODO: allow configuration of default metadata
-		metadata = map[string]any{
-			"title":       filename,
-			"description": "",
-			"date":        time.Now().Format("2006-01-02"),
-		}
+		metadata = setDefaultMetadata(path)
 	}
 
 	if _, ok := metadata["slug"]; !ok {
@@ -127,4 +89,48 @@ func ProcessDirectory(dir string) ([]Page, error) {
 	})
 
 	return writings, err
+}
+
+func generateSlug(title string) string {
+	slug := strings.ToLower(strings.TrimSpace(title))
+	slug = strings.ReplaceAll(slug, " ", "-")
+	slug = strings.ReplaceAll(slug, ".", "")
+	return slug
+}
+
+func parseFrontMatter(content []byte) (map[string]any, []byte, error) {
+	contentStr := string(content)
+	if !strings.HasPrefix(contentStr, "---") {
+		return nil, content, nil
+	}
+	parts := strings.SplitN(contentStr, "---", 3)
+	if len(parts) < 3 {
+		return nil, content, fmt.Errorf("invalid front-matter format")
+	}
+	var metadata map[string]any
+	if err := yaml.Unmarshal([]byte(parts[1]), &metadata); err != nil {
+		return nil, nil, err
+	}
+	return metadata, []byte(parts[2]), nil
+}
+
+func setDefaultMetadata(path string) map[string]any {
+	_, filename := filepath.Split(path)
+	filename = strings.SplitN(filename, ".", 1)[0]
+	// TODO: allow configuration of default metadata
+	return map[string]any{
+		"title":       filename,
+		"description": "",
+		"date":        time.Now().Format("2006-01-02"),
+	}
+}
+
+// TODO: make this configurable?
+func getReadingTime(text string) int {
+	words := strings.Fields(text)
+	wordCount := len(words)
+
+	// reading/speaking rate
+	wordsPerMinute := 200.0
+	return int(math.Round(float64(wordCount) / wordsPerMinute))
 }
