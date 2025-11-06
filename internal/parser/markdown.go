@@ -9,9 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"codeberg.org/pdewey/cedar/internal/highlighter"
+	chromahtml "github.com/alecthomas/chroma/formatters/html"
 	"github.com/goccy/go-yaml"
 	"github.com/yuin/goldmark"
+	highlighting "github.com/yuin/goldmark-highlighting"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/renderer/html"
 )
@@ -45,7 +46,14 @@ func ProcessMarkdownFile(path string) (Page, error) {
 		goldmark.WithExtensions(
 			extension.GFM,
 			extension.Footnote,
-			highlighter.NewTreeSitterExtension(),
+
+			highlighting.NewHighlighting(
+				highlighting.WithFormatOptions(
+					chromahtml.WithLineNumbers(false),
+					chromahtml.WithClasses(true),
+				),
+			),
+			// highlighter.NewTreeSitterExtension(),
 		),
 		goldmark.WithRendererOptions(
 			html.WithHardWraps(),

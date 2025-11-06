@@ -34,7 +34,7 @@ type Item struct {
 }
 
 func GenerateRSS(pages []parser.Page, outputPath string) error {
-	// TODO: rip this into some sort of config (probably yaml)
+	// TODO: rip this into some sort of config (probably toml)
 	channel := Channel{
 		Title:       "A website",
 		Link:        "https://example.com",

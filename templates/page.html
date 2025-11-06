@@ -9,6 +9,8 @@
     {{end}} {{if .Metadata.date}}
     <meta name="date" content="{{.Metadata.date}}" />
     {{end}}
+    <link rel="stylesheet" href="/darkearth-syntax.css" />
+    <link rel="stylesheet" href="/main.css" />
   </head>
   <body>
     <article>
@@ -20,7 +22,7 @@
           >{{.Metadata.read_time}} min read</span
         >{{end}}
       </header>
-      <div class="content">{{.HTMLContent}}</div>
+      <div class="content prose font-sans">{{.HTMLContent}}</div>
     </article>
   </body>
 </html>

@@ -1,2 +1,6 @@
 content/*
-static/
+static/**/*.html
+static/**/*.xml
+static/main.css
+*.out
+cedar
