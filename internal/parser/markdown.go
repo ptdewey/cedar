@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ptdewey/cedar/internal/config"
 	chromahtml "github.com/alecthomas/chroma/formatters/html"
 	"github.com/goccy/go-yaml"
+	"github.com/ptdewey/cedar/internal/config"
 	"github.com/yuin/goldmark"
 	highlighting "github.com/yuin/goldmark-highlighting"
 	"github.com/yuin/goldmark/extension"
@@ -92,7 +92,6 @@ func newGoldmarkParser(cfg *config.Config) goldmark.Markdown {
 					chromahtml.WithClasses(true),
 				),
 			),
-			// highlighter.NewTreeSitterExtension(),
 		),
 		goldmark.WithRendererOptions(opts...),
 	)

@@ -2,10 +2,7 @@ module github.com/ptdewey/cedar
 
 go 1.25.2
 
-require (
-	github.com/smacker/go-tree-sitter v0.0.0-20240827094217-dd81d9e9be82
-	github.com/yuin/goldmark v1.7.13
-)
+require github.com/yuin/goldmark v1.7.13
 
 require (
 	github.com/alecthomas/chroma v0.10.0
@@ -14,4 +11,7 @@ require (
 	github.com/yuin/goldmark-highlighting v0.0.0-20220208100518-594be1970594
 )
 
-require github.com/dlclark/regexp2 v1.4.0 // indirect
+require (
+	github.com/dlclark/regexp2 v1.4.0 // indirect
+	github.com/stretchr/testify v1.9.0 // indirect
+)
