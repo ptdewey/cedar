@@ -9,7 +9,7 @@ import (
 	"sort"
 	"time"
 
-	"codeberg.org/pdewey/cedar/internal/parser"
+	"github.com/ptdewey/cedar/internal/parser"
 )
 
 // Note: fields in this struct are used inside HTML templates, and must be exported.

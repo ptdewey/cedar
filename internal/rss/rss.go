@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"codeberg.org/pdewey/cedar/internal/config"
-	"codeberg.org/pdewey/cedar/internal/parser"
+	"github.com/ptdewey/cedar/internal/config"
+	"github.com/ptdewey/cedar/internal/parser"
 )
 
 type RSS struct {

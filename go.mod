@@ -1,4 +1,4 @@
-module codeberg.org/pdewey/cedar
+module github.com/ptdewey/cedar
 
 go 1.25.2
 

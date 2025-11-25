@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"codeberg.org/pdewey/cedar/internal/config"
-	"codeberg.org/pdewey/cedar/internal/generator"
-	"codeberg.org/pdewey/cedar/internal/parser"
-	"codeberg.org/pdewey/cedar/internal/rss"
+	"github.com/ptdewey/cedar/internal/config"
+	"github.com/ptdewey/cedar/internal/generator"
+	"github.com/ptdewey/cedar/internal/parser"
+	"github.com/ptdewey/cedar/internal/rss"
 )
 
 var (

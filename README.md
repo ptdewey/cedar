@@ -7,13 +7,13 @@ A lightweight static site generator built-in Go.
 Go install:
 
 ```sh
-go install codeberg.org/pdewey/cedar@latest
+go install github.com/ptdewey/cedar@latest
 ```
 
 From Source:
 
 ```bash
-git clone https://codeberg.org/pdewey/cedar.git
+git clone https://github.com/ptdewey/cedar.git
 cd cedar
 go run main.go
 ```

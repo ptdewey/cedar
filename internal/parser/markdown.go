@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"codeberg.org/pdewey/cedar/internal/config"
+	"github.com/ptdewey/cedar/internal/config"
 	chromahtml "github.com/alecthomas/chroma/formatters/html"
 	"github.com/goccy/go-yaml"
 	"github.com/yuin/goldmark"

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"codeberg.org/pdewey/cedar/internal/config"
+	"github.com/ptdewey/cedar/internal/config"
 )
 
 func ProcessDirectory(cfg *config.Config) ([]Page, error) {
