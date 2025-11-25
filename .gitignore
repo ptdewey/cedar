@@ -1,6 +1,4 @@
 content/*
-static/**/*.html
-static/**/*.xml
-static/main.css
+public/*
 *.out
 cedar

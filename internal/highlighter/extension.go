@@ -8,6 +8,8 @@ import (
 
 type TreeSitterExtension struct{}
 
+var _ goldmark.Extender = (*TreeSitterExtension)(nil)
+
 func NewTreeSitterExtension() goldmark.Extender {
 	return &TreeSitterExtension{}
 }

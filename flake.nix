@@ -17,10 +17,6 @@
         packages = with pkgs; [
           tailwindcss_4
         ];
-
-        shellHook = ''
-          # export EDITOR="nvim"
-        '';
       };
     });
   };

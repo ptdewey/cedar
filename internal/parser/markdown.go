@@ -9,20 +9,25 @@ import (
 	"strings"
 	"time"
 
+	"codeberg.org/pdewey/cedar/internal/config"
 	chromahtml "github.com/alecthomas/chroma/formatters/html"
 	"github.com/goccy/go-yaml"
 	"github.com/yuin/goldmark"
 	highlighting "github.com/yuin/goldmark-highlighting"
 	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/renderer"
 	"github.com/yuin/goldmark/renderer/html"
 )
 
 type Page struct {
-	Metadata map[string]any `json:"metadata"`
-	Content  string         `json:"content"`
+	Metadata   map[string]any `json:"metadata"`
+	Content    string         `json:"content"`
+	Route      *config.Route  `json:"-"`
+	Date       time.Time      `json:"-"` // Parsed date for sorting
+	SourcePath string         `json:"-"` // Path to the source markdown file
 }
 
-func ProcessMarkdownFile(path string) (Page, error) {
+func ProcessMarkdownFile(path string, cfg *config.Config) (Page, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return Page{}, err
@@ -35,6 +40,15 @@ func ProcessMarkdownFile(path string) (Page, error) {
 		metadata = setDefaultMetadata(path)
 	}
 
+	// Match the file to a route
+	relPath, err := filepath.Rel(cfg.ContentDir, path)
+	if err != nil {
+		return Page{}, err
+	}
+
+	route := matchRoute(relPath, cfg.Routes)
+
+	// Generate slug if not provided
 	if _, ok := metadata["slug"]; !ok {
 		fname := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
 		metadata["slug"] = generateSlug(fname)
@@ -42,7 +56,32 @@ func ProcessMarkdownFile(path string) (Page, error) {
 
 	var htmlContent bytes.Buffer
 
-	md := goldmark.New(
+	md := newGoldmarkParser(cfg)
+	if err := md.Convert(markdownContent, &htmlContent); err != nil {
+		return Page{}, err
+	}
+
+	metadata["read_time"] = getReadingTime(string(markdownContent))
+
+	return Page{
+		Metadata:   metadata,
+		Content:    htmlContent.String(),
+		Route:      route,
+		Date:       parseDate(metadata),
+		SourcePath: path,
+	}, nil
+}
+
+func newGoldmarkParser(cfg *config.Config) goldmark.Markdown {
+	opts := []renderer.Option{
+		html.WithHardWraps(),
+		html.WithHardWraps(),
+	}
+	if cfg.AllowUnsafeHTML {
+		opts = append(opts, html.WithUnsafe())
+	}
+
+	return goldmark.New(
 		goldmark.WithExtensions(
 			extension.GFM,
 			extension.Footnote,
@@ -55,48 +94,8 @@ func ProcessMarkdownFile(path string) (Page, error) {
 			),
 			// highlighter.NewTreeSitterExtension(),
 		),
-		goldmark.WithRendererOptions(
-			html.WithHardWraps(),
-			html.WithXHTML(),
-		),
+		goldmark.WithRendererOptions(opts...),
 	)
-
-	if err := md.Convert(markdownContent, &htmlContent); err != nil {
-		return Page{}, err
-	}
-
-	metadata["read_time"] = getReadingTime(string(markdownContent))
-
-	return Page{
-		Metadata: metadata,
-		Content:  htmlContent.String(),
-	}, nil
-}
-
-func ProcessDirectory(dir string) ([]Page, error) {
-	var writings []Page
-
-	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if d.IsDir() {
-			return nil
-		}
-
-		if strings.HasSuffix(d.Name(), ".md") {
-			page, err := ProcessMarkdownFile(path)
-			if err != nil {
-				return err
-			}
-
-			writings = append(writings, page)
-		}
-		return nil
-	})
-
-	return writings, err
 }
 
 func generateSlug(title string) string {
@@ -108,6 +107,7 @@ func generateSlug(title string) string {
 
 func parseFrontMatter(content []byte) (map[string]any, []byte, error) {
 	contentStr := string(content)
+	// TODO: allow toml metadata
 	if !strings.HasPrefix(contentStr, "---") {
 		return nil, content, nil
 	}
@@ -124,7 +124,7 @@ func parseFrontMatter(content []byte) (map[string]any, []byte, error) {
 
 func setDefaultMetadata(path string) map[string]any {
 	_, filename := filepath.Split(path)
-	filename = strings.SplitN(filename, ".", 1)[0]
+	filename = strings.TrimSuffix(filename, filepath.Ext(filename))
 	// TODO: allow configuration of default metadata
 	return map[string]any{
 		"title":       filename,
@@ -133,7 +133,6 @@ func setDefaultMetadata(path string) map[string]any {
 	}
 }
 
-// TODO: make this configurable?
 func getReadingTime(text string) int {
 	words := strings.Fields(text)
 	wordCount := len(words)
@@ -141,4 +140,75 @@ func getReadingTime(text string) int {
 	// reading/speaking rate
 	wordsPerMinute := 200.0
 	return int(math.Round(float64(wordCount) / wordsPerMinute))
+}
+
+func matchRoute(filePath string, routes []config.Route) *config.Route {
+	filePath = filepath.ToSlash(filePath)
+
+	for _, route := range routes {
+		routePath := filepath.ToSlash(route.ContentPath)
+
+		if filePath == routePath {
+			return &route
+		}
+
+		if strings.HasPrefix(filePath, routePath+"/") {
+			return &route
+		}
+	}
+
+	return nil
+}
+
+func GetOutputPath(page Page, publishDir string) string {
+	if page.Route == nil {
+		slug := page.Metadata["slug"].(string)
+		return filepath.Join(publishDir, slug, "index.html")
+	}
+
+	outputPath := page.Route.OutputPattern
+
+	if slug, ok := page.Metadata["slug"].(string); ok {
+		outputPath = strings.ReplaceAll(outputPath, ":slug", slug)
+	}
+
+	if outputPath == "/" {
+		outputPath = ""
+	} else {
+		outputPath = strings.TrimPrefix(outputPath, "/")
+	}
+
+	var fileName string
+	if outputPath == "" {
+		fileName = "index.html"
+	} else {
+		fileName = filepath.Join(outputPath, "index.html")
+	}
+
+	return filepath.Join(publishDir, fileName)
+}
+
+func parseDate(metadata map[string]any) time.Time {
+	dateVal, ok := metadata["date"]
+	if !ok {
+		return time.Time{}
+	}
+
+	switch v := dateVal.(type) {
+	case time.Time:
+		return v
+	case string:
+		formats := []string{
+			time.RFC3339,
+			"2006-01-02",
+			"2006-01-02T15:04:05",
+			"2006-01-02 15:04:05",
+		}
+		for _, format := range formats {
+			if t, err := time.Parse(format, v); err == nil {
+				return t
+			}
+		}
+	}
+	return time.Time{}
 }

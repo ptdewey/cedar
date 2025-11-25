@@ -13,281 +13,128 @@ pre.chroma {
   border: 1px solid #bb7844;
 }
 
-.chroma .line {
-  display: flex;
-}
+.chroma {
+  .line {
+    display: flex;
+  }
 
-/* Line Numbers */
-.chroma .ln {
-  color: #6e665e;
-  text-align: right;
-  margin-right: 15px;
-  font-style: italic;
-}
+  .ln {
+    color: #6e665e;
+    text-align: right;
+    margin-right: 15px;
+    font-style: italic;
+  }
 
-/* Syntax Highlighting */
-.chroma .k,
-.chroma .kr,
-.chroma .nd {
-  color: #5f865f;
-}
+  .k,
+  .kr,
+  .nd {
+    color: #5f865f;
+  }
 
-.chroma .kt {
-  color: #bb7844;
-}
+  .kt {
+    color: #bb7844;
+  }
 
-.chroma .n {
-  color: #d7c484;
-}
+  .n {
+    color: #d7c484;
+  }
 
-.chroma .na {
-  color: #bb7844;
-}
+  .na,
+  .nb,
+  .nc {
+    color: #bb7844;
+  }
 
-.chroma .nb {
-  color: #bb7844;
-}
+  .ne {
+    color: #7a9f7a;
+  }
 
-.chroma .nc {
-  color: #bb7844;
-}
+  .nf {
+    color: #77824a;
+  }
 
-.chroma .ne {
-  color: #7a9f7a;
-}
+  .kn,
+  .kd {
+    color: #7a9f7a;
+  }
 
-.chroma .nf {
-  color: #77824a;
-}
+  .nl {
+    color: #b36b42;
+  }
 
-.chroma .kn,
-.chroma .kd {
-  color: #7a9f7a;
-}
+  .si,
+  .nt {
+    color: #bb7844;
+  }
 
-.chroma .nl {
-  color: #b36b42;
-}
+  .nx,
+  .nv {
+    color: #d7c484;
+  }
 
-.chroma .si,
-.chroma .nt {
-  color: #bb7844;
-}
+  .s,
+  .sb,
+  .s2 {
+    color: #b3854d;
+  }
 
-.chroma .nx,
-.chroma .nv {
-  color: #d7c484;
-}
+  .ss {
+    color: #c9a654;
+  }
 
-.chroma .s,
-.chroma .sb,
-.chroma .s2 {
-  color: #b3854d;
-}
+  .kc,
+  .m {
+    color: #b3664d;
+  }
 
-.chroma .ss {
-  color: #c9a654;
-}
+  .o {
+    color: #669977;
+  }
 
-.chroma .kc,
-.chroma .m {
-  color: #b3664d;
-}
+  .p {
+    /* color: #80744d; */
+    color: #d7c484;
+  }
 
-.chroma .o {
-  color: #669977;
-}
+  .c {
+    color: #6e665e;
+    font-style: italic;
+  }
 
-.chroma .p {
-  /* color: #80744d; */
-  color: #d7c484;
-}
+  .c1,
+  .cp,
+  .gp {
+    color: #6e665e;
+  }
 
-.chroma .c {
-  color: #6e665e;
-  font-style: italic;
-}
+  .err {
+    background-color: #b36b42;
+    color: #c3c3b1;
+  }
 
-.chroma .c1,
-.chroma .cp {
-  color: #6e665e;
-}
+  .gd {
+    background-color: #b36b42;
+    color: #212121;
+  }
 
-.chroma .err {
-  background-color: #b36b42;
-  color: #c3c3b1;
-}
+  .gi {
+    background-color: #5f865f;
+    color: #212121;
+  }
 
-.chroma .gd {
-  background-color: #b36b42;
-  color: #212121;
-}
+  .gh,
+  .gu,
+  .ge,
+  .gs {
+    color: #7a9f7a;
+  }
 
-.chroma .gi {
-  background-color: #5f865f;
-  color: #212121;
-}
+  .mi,
+  .mf {
+    color: #b3664d;
+  }
 
-.chroma .gh {
-  color: #7a9f7a;
-}
-
-.chroma .gu {
-  color: #7a9f7a;
-}
-
-.chroma .mi,
-.chroma .mf {
-  color: #b3664d;
-}
-
-.chroma .ge {
-  text-decoration: underline;
-  color: #7a9f7a;
-}
-
-.chroma .gs {
-  color: #7a9f7a;
-}
-
-.chroma .gp {
-  color: #6e665e;
-}
-
-.chroma .gt {
-  background-color: #b36b42;
-}
-
-/* Tree-sitter Syntax Highlighting (Semantic Classes) */
-
-/* Base code block styling */
-pre code {
-  display: block;
-  background-color: #24211e;
-  color: #d7c484;
-  padding: 0.5rem;
-  border-radius: 8px;
-  overflow-x: auto;
-}
-
-.dark pre code {
-  background-color: #1c1a18;
-  border: 1px solid #bb7844;
-}
-
-/* Keywords (if, for, func, var, etc.) */
-.keyword {
-  color: #5f865f;
-  font-weight: bold;
-}
-
-/* Boolean and nil literals */
-.boolean {
-  color: #b36b42;
-  font-weight: bold;
-}
-
-/* Numbers */
-.number {
-  color: #b3664d;
-}
-
-/* Strings */
-.string {
-  color: #b3854d;
-}
-
-/* String delimiters (quotes) */
-.string-delimiter {
-  color: #c9a654;
-}
-
-/* Escape sequences in strings */
-.string-escape {
-  color: #c9a654;
-  font-weight: bold;
-}
-
-/* Comments */
-.comment {
-  color: #6e665e;
-  font-style: italic;
-}
-
-/* Operators (+, -, ==, etc.) */
-.operator {
-  color: #669977;
-}
-
-/* Punctuation (parentheses, braces, etc.) */
-.punctuation {
-  color: #80744d;
-}
-
-/* General identifiers and variables */
-.identifier,
-.variable {
-  color: #d7c484;
-}
-
-/* Special variables (bash $@, $*, etc.) */
-.variable-special {
-  color: #c9a654;
-}
-
-/* Type names */
-.type {
-  color: #bb7844;
-}
-
-/* Function names */
-.function {
-  color: #7a9f7a;
-}
-
-/* Namespace, package, module names */
-.namespace {
-  color: #bb7844;
-}
-
-/* Constants and literals */
-.constant {
-  color: #b36b42;
-}
-
-/* HTML/XML tags */
-.tag {
-  color: #bb7844;
-  font-weight: bold;
-}
-
-/* Tag delimiters (<, >, </>, etc.) */
-.tag-delimiter {
-  color: #669977;
-}
-
-/* HTML/XML attributes */
-.attribute {
-  color: #c9a654;
-}
-
-/* CSS classes */
-.class {
-  color: #c9a654;
-}
-
-/* CSS properties */
-.property {
-  color: #7a9f7a;
-}
-
-/* Plain text content */
-.text {
-  color: #d7c484;
-}
-
-/* Error nodes */
-.error {
-  background-color: #b36b42;
-  color: #c3c3b1;
+  .gt {
+    background-color: #b36b42;
+  }
 }

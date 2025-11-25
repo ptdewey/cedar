@@ -1,38 +1,58 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
-	"sort"
-	"time"
 
+	"codeberg.org/pdewey/cedar/internal/config"
 	"codeberg.org/pdewey/cedar/internal/generator"
 	"codeberg.org/pdewey/cedar/internal/parser"
 	"codeberg.org/pdewey/cedar/internal/rss"
 )
 
+var (
+	flagConfigPath = flag.String("config", "cedar.toml", "-config 'cedar.toml'")
+)
+
 func main() {
-	writings, err := parser.ProcessDirectory("content")
+	flag.Parse()
+
+	cfg, err := config.Parse(*flagConfigPath)
 	if err != nil {
-		fmt.Printf("Error processing directory: %v\n", err)
+		fmt.Printf("failed to parse configuration: %v\n", err)
 		os.Exit(1)
 	}
 
-	sort.Slice(writings, func(i, j int) bool {
-		dateI, _ := time.Parse("2006-01-02", writings[i].Metadata["date"].(string))
-		dateJ, _ := time.Parse("2006-01-02", writings[j].Metadata["date"].(string))
-		return dateI.After(dateJ)
-	})
+	pages, err := parser.ProcessDirectory(cfg)
+	if err != nil {
+		fmt.Printf("failed to process content directory: %v\n", err)
+		os.Exit(1)
+	}
 
-	if err := generator.WriteHTMLFiles(writings, "static/writing", "templates/page.html"); err != nil {
+	// TODO: clear public dir if clean is enabled
+	// - should save new files to a cache and only remove after build is successful
+
+	if err := generator.WriteHTMLFiles(pages, cfg.PublishDir, cfg.TemplateDir); err != nil {
 		fmt.Printf("Error writing HTML files: %v\n", err)
 		os.Exit(1)
 	}
 
-	if err := rss.GenerateRSS(writings, "static/rss.xml"); err != nil {
-		fmt.Printf("Error writing rss.xml: %v\n", err)
-		os.Exit(1)
+	// FIX: this doesn't work if any of the files already exist
+	if err := os.CopyFS(cfg.PublishDir, os.DirFS(cfg.StaticDir)); err != nil {
+		fmt.Printf("warn: error copying static directory: %v\n", err)
 	}
 
-	fmt.Println("Successfully generated HTML files and rss.xml")
+	if cfg.RSS.Generate {
+		if err := rss.GenerateRSS(pages, cfg); err != nil {
+			fmt.Printf("Error writing rss.xml: %v\n", err)
+			os.Exit(1)
+		}
+	}
+
+	msg := "Successfully generated HTML files"
+	if cfg.RSS.Generate {
+		msg += " and rss.xml"
+	}
+	fmt.Println(msg)
 }

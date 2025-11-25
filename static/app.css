@@ -26,7 +26,7 @@
 @theme {
   /* --font-display: "Iosevka Patrick", "monospace"; */
   /* --font-display: "Iosevka Patrick", "monospace"; */
-  --font-display: "Liberation Serif", "MS Serif", "New York", serif;
+  --font-mono: "Iosevka Patrick", monospace;
 }
 
 :root {
@@ -93,15 +93,6 @@
 
 .link-color p a {
   color: var(--link-color);
-}
-
-@layer component {
-  ul,
-  ol,
-  li {
-    list-style: none;
-    padding-left: 0;
-  }
 }
 
 @plugin '@tailwindcss/typography';

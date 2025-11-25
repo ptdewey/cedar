@@ -4,9 +4,12 @@ import (
 	"encoding/xml"
 	"fmt"
 	"os"
+	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
+	"codeberg.org/pdewey/cedar/internal/config"
 	"codeberg.org/pdewey/cedar/internal/parser"
 )
 
@@ -33,16 +36,32 @@ type Item struct {
 	Content     string `xml:"content"`
 }
 
-func GenerateRSS(pages []parser.Page, outputPath string) error {
-	// TODO: rip this into some sort of config (probably toml)
+func GenerateRSS(pages []parser.Page, cfg *config.Config) error {
+	outputPath := filepath.Join(cfg.PublishDir, "rss.xml")
+
 	channel := Channel{
-		Title:       "A website",
-		Link:        "https://example.com",
-		Description: "RSS feed for a website",
+		Title:       cfg.RSS.Title,
+		Link:        cfg.RSS.URL,
+		Description: cfg.RSS.Description,
 		PubDate:     time.Now().Format(time.RFC1123Z),
 	}
 
+	sortedPages := make([]parser.Page, 0, len(pages))
 	for _, page := range pages {
+		if page.Route != nil && page.Route.GenerateRSS {
+			sortedPages = append(sortedPages, page)
+		}
+	}
+	sort.Slice(sortedPages, func(i, j int) bool {
+		return sortedPages[i].Date.After(sortedPages[j].Date)
+	})
+
+	for _, page := range pages {
+		// Skip pages whose routes don't have RSS generation enabled
+		if page.Route == nil || !page.Route.GenerateRSS {
+			continue
+		}
+
 		var categories []string
 		if rawCategories, ok := page.Metadata["categories"].([]any); ok {
 			for _, category := range rawCategories {
@@ -57,12 +76,16 @@ func GenerateRSS(pages []parser.Page, outputPath string) error {
 			description = ""
 		}
 
+		baseURL := strings.TrimSuffix(cfg.RSS.URL, "/")
+		itemPath := strings.TrimPrefix(parser.GetOutputPath(page, ""), "/")
+		itemPath = strings.TrimSuffix(itemPath, "/index.html")
+
 		item := Item{
 			Title:       page.Metadata["title"].(string),
-			Link:        fmt.Sprintf("https://example.com/writing/%s", page.Metadata["slug"].(string)),
+			Link:        fmt.Sprintf("https://%s/%s", baseURL, itemPath),
 			Description: description,
 			Content:     page.Content,
-			PubDate:     page.Metadata["date"].(string),
+			PubDate:     page.Date.Format(time.RFC1123Z),
 			Category:    strings.Join(categories, ", "),
 		}
 		channel.Items = append(channel.Items, item)

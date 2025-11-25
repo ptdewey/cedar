@@ -1,6 +1,6 @@
 # Cedar
 
-A lightweight static site generator built-in go with tree-sitter code-block highlighting.
+A lightweight static site generator built-in Go.
 
 ## Installation
 
