@@ -1,4 +1,5 @@
 content/*
+static/*
 public/*
 *.out
 cedar

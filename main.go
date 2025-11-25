@@ -30,19 +30,34 @@ func main() {
 		os.Exit(1)
 	}
 
-	// TODO: clear public dir if clean is enabled
-	// - should save new files to a cache and only remove after build is successful
-
-	if err := generator.WriteHTMLFiles(pages, cfg.PublishDir, cfg.TemplateDir); err != nil {
+	// Generate HTML files, writing them to the build cache directory.
+	if err := generator.WriteHTMLFiles(pages, cfg.CacheDir, cfg.TemplateDir); err != nil {
 		fmt.Printf("Error writing HTML files: %v\n", err)
 		os.Exit(1)
 	}
 
-	// FIX: this doesn't work if any of the files already exist
-	if err := os.CopyFS(cfg.PublishDir, os.DirFS(cfg.StaticDir)); err != nil {
-		fmt.Printf("warn: error copying static directory: %v\n", err)
+	// Clean publish directory if clean build is enabled.
+	if cfg.CleanBuild {
+		if err := os.RemoveAll(cfg.PublishDir); err != nil {
+			fmt.Printf("failed to removed publish directory '%s': %v\n", cfg.PublishDir, err)
+		}
 	}
 
+	// Copy static HTML files from build cache to publish directory.
+	if err := generator.CopyDirIncremental(cfg.CacheDir, cfg.PublishDir); err != nil {
+		fmt.Printf("error copying static directory: %v\n", err)
+		os.Exit(1)
+	} else {
+		_ = os.RemoveAll(cfg.CacheDir)
+	}
+
+	// Copy other static files.
+	if err := generator.CopyDirIncremental(cfg.StaticDir, cfg.PublishDir); err != nil {
+		fmt.Printf("error copying static directory: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Generate RSS feed if enabled.
 	if cfg.RSS.Generate {
 		if err := rss.GenerateRSS(pages, cfg); err != nil {
 			fmt.Printf("Error writing rss.xml: %v\n", err)

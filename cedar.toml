@@ -1,5 +1,6 @@
 buildDraft = false
 allowUnsafeHTML = true
+cleanBuild = true
 
 [rss]
 generate = true

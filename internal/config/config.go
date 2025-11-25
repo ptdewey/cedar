@@ -17,7 +17,9 @@ type Config struct {
 	StaticDir       string
 	ContentDir      string
 	TemplateDir     string
+	CacheDir        string
 	Copyright       string
+	CleanBuild      bool
 	BuildDraft      bool
 	BuildFuture     bool
 	AllowUnsafeHTML bool
@@ -46,7 +48,9 @@ var defaultConfig = Config{
 	StaticDir:       "static",
 	ContentDir:      "content",
 	TemplateDir:     "templates",
+	CacheDir:        "build",
 	Copyright:       "",
+	CleanBuild:      false,
 	BuildDraft:      false,
 	BuildFuture:     false,
 	AllowUnsafeHTML: false,

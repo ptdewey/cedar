@@ -1,8 +1,6 @@
 all:
-    @tailwindcss -i static/app.css -o public/style.css
     @go run main.go
-    @cp ./static/darkearth-syntax.css ./public
-    @cp ./static/bluesky-comments.js ./public
+    @tailwindcss -i static/app.css -o public/style.css
 
 run:
     @go run main.go
