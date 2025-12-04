@@ -1,0 +1,58 @@
+{
+  "$type": "pub.leaflet.content",
+  "pages": [
+    {
+      "$type": "pub.leaflet.pages.linearDocument",
+      "blocks": [
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.text",
+            "plaintext": "café bold",
+            "facets": [
+              {
+                "index": { "byteStart": 6, "byteEnd": 10 },
+                "features": [{ "$type": "pub.leaflet.richtext.facet#bold" }]
+              }
+            ]
+          }
+        },
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.text",
+            "plaintext": "日本語",
+            "facets": [
+              {
+                "index": { "byteStart": 0, "byteEnd": 9 },
+                "features": [{ "$type": "pub.leaflet.richtext.facet#italic" }]
+              }
+            ]
+          }
+        },
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.text",
+            "plaintext": "🎉 party",
+            "facets": [
+              {
+                "index": { "byteStart": 5, "byteEnd": 10 },
+                "features": [{ "$type": "pub.leaflet.richtext.facet#bold" }]
+              }
+            ]
+          }
+        },
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.text",
+            "plaintext": "Ünïcödé text",
+            "facets": [
+              {
+                "index": { "byteStart": 0, "byteEnd": 12 },
+                "features": [{ "$type": "pub.leaflet.richtext.facet#italic" }]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

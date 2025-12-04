@@ -1,73 +1,45 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 
-	"github.com/ptdewey/cedar/internal/config"
-	"github.com/ptdewey/cedar/internal/generator"
-	"github.com/ptdewey/cedar/internal/parser"
-	"github.com/ptdewey/cedar/internal/rss"
-)
-
-var (
-	flagConfigPath = flag.String("config", "cedar.toml", "-config 'cedar.toml'")
+	"github.com/ptdewey/cedar/internal/cli"
 )
 
 func main() {
-	flag.Parse()
+	if len(os.Args) < 2 {
+		printUsage()
+		os.Exit(1)
+	}
 
-	cfg, err := config.Parse(*flagConfigPath)
+	var err error
+	switch os.Args[1] {
+	case "build":
+		err = cli.RunBuild(os.Args[2:])
+	case "auth":
+		err = cli.RunAuth(os.Args[2:])
+	case "publish":
+		err = cli.RunPublish(os.Args[2:])
+	case "convert":
+		err = cli.RunConvert(os.Args[2:])
+	default:
+		printUsage()
+		os.Exit(1)
+	}
+
 	if err != nil {
-		fmt.Printf("failed to parse configuration: %v\n", err)
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
+}
 
-	pages, err := parser.ProcessDirectory(cfg)
-	if err != nil {
-		fmt.Printf("failed to process content directory: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Generate HTML files, writing them to the build cache directory.
-	if err := generator.WriteHTMLFiles(pages, cfg.CacheDir, cfg); err != nil {
-		fmt.Printf("Error writing HTML files: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Clean publish directory if clean build is enabled.
-	if cfg.CleanBuild {
-		if err := os.RemoveAll(cfg.PublishDir); err != nil {
-			fmt.Printf("failed to removed publish directory '%s': %v\n", cfg.PublishDir, err)
-		}
-	}
-
-	// Copy static HTML files from build cache to publish directory.
-	if err := generator.CopyDirIncremental(cfg.CacheDir, cfg.PublishDir); err != nil {
-		fmt.Printf("error copying static directory: %v\n", err)
-		os.Exit(1)
-	} else {
-		_ = os.RemoveAll(cfg.CacheDir)
-	}
-
-	// Copy other static files.
-	if err := generator.CopyDirIncremental(cfg.StaticDir, cfg.PublishDir); err != nil {
-		fmt.Printf("error copying static directory: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Generate RSS feed if enabled.
-	if cfg.RSS.Generate {
-		if err := rss.GenerateRSS(pages, cfg); err != nil {
-			fmt.Printf("Error writing rss.xml: %v\n", err)
-			os.Exit(1)
-		}
-	}
-
-	msg := "Successfully generated HTML files"
-	if cfg.RSS.Generate {
-		msg += " and rss.xml"
-	}
-	fmt.Println(msg)
+func printUsage() {
+	fmt.Fprintln(os.Stderr, "Usage: cedar <command> [flags]")
+	fmt.Fprintln(os.Stderr, "")
+	fmt.Fprintln(os.Stderr, "Commands:")
+	fmt.Fprintln(os.Stderr, "  build     Build the static site")
+	fmt.Fprintln(os.Stderr, "  auth      Authenticate with ATProto via OAuth")
+	fmt.Fprintln(os.Stderr, "  publish   Publish/sync content to ATProto PDS")
+	fmt.Fprintln(os.Stderr, "  convert   Convert markdown files to Leaflet JSON or HTML")
 }

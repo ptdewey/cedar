@@ -6,6 +6,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -20,11 +21,13 @@ import (
 )
 
 type Page struct {
-	Metadata   map[string]any `json:"metadata"`
-	Content    string         `json:"content"`
-	Route      *config.Route  `json:"-"`
-	Date       time.Time      `json:"-"` // Parsed date for sorting
-	SourcePath string         `json:"-"` // Path to the source markdown file
+	Metadata    map[string]any `json:"metadata"`
+	Content     string         `json:"content"`
+	RawMarkdown string         `json:"-"` // Raw markdown (after front matter) for ATProto publishing
+	PlainText   string         `json:"-"` // Stripped plain text for ATProto search indexing
+	Route       *config.Route  `json:"-"`
+	Date        time.Time      `json:"-"` // Parsed date for sorting
+	SourcePath  string         `json:"-"` // Path to the source markdown file
 }
 
 func ProcessMarkdownFile(path string, cfg *config.Config) (Page, error) {
@@ -63,19 +66,22 @@ func ProcessMarkdownFile(path string, cfg *config.Config) (Page, error) {
 
 	metadata["read_time"] = getReadingTime(string(markdownContent))
 
+	rawMd := strings.TrimSpace(string(markdownContent))
+
 	return Page{
-		Metadata:   metadata,
-		Content:    htmlContent.String(),
-		Route:      route,
-		Date:       parseDate(metadata),
-		SourcePath: path,
+		Metadata:    metadata,
+		Content:     htmlContent.String(),
+		RawMarkdown: rawMd,
+		PlainText:   stripMarkdown(rawMd),
+		Route:       route,
+		Date:        parseDate(metadata),
+		SourcePath:  path,
 	}, nil
 }
 
 func newGoldmarkParser(cfg *config.Config) goldmark.Markdown {
 	opts := []renderer.Option{
-		html.WithHardWraps(),
-		html.WithHardWraps(),
+		// html.WithHardWraps(),
 	}
 	if cfg.AllowUnsafeHTML {
 		opts = append(opts, html.WithUnsafe())
@@ -139,6 +145,28 @@ func getReadingTime(text string) int {
 	// reading/speaking rate
 	wordsPerMinute := 200.0
 	return int(math.Round(float64(wordCount) / wordsPerMinute))
+}
+
+var (
+	reImage     = regexp.MustCompile(`!\[[^\]]*\]\([^)]*\)`)
+	reLink      = regexp.MustCompile(`\[([^\]]*)\]\([^)]*\)`)
+	reCodeFence = regexp.MustCompile("(?m)^```[\\s\\S]*?^```")
+	reHeading   = regexp.MustCompile(`(?m)^#{1,6}\s+`)
+)
+
+func stripMarkdown(md string) string {
+	s := reCodeFence.ReplaceAllString(md, "")
+	s = reImage.ReplaceAllString(s, "")
+	s = reLink.ReplaceAllString(s, "$1")
+	s = reHeading.ReplaceAllString(s, "")
+	s = strings.ReplaceAll(s, "**", "")
+	s = strings.ReplaceAll(s, "__", "")
+	s = strings.ReplaceAll(s, "~~", "")
+	s = strings.ReplaceAll(s, "`", "")
+	s = strings.ReplaceAll(s, "> ", "")
+	// Collapse whitespace
+	fields := strings.Fields(s)
+	return strings.Join(fields, " ")
 }
 
 func matchRoute(filePath string, routes []config.Route) *config.Route {

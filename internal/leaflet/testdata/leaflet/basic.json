@@ -1,0 +1,60 @@
+{
+  "$type": "pub.leaflet.content",
+  "pages": [
+    {
+      "$type": "pub.leaflet.pages.linearDocument",
+      "blocks": [
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.header",
+            "plaintext": "Getting Started",
+            "level": 1
+          }
+        },
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.text",
+            "plaintext": "plain text, no formatting"
+          }
+        },
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.blockquote",
+            "plaintext": "A notable quote."
+          }
+        },
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.code",
+            "plaintext": "fmt.Println(\"hello\")",
+            "language": "go"
+          }
+        },
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.horizontalRule"
+          }
+        },
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.unorderedList",
+            "children": [
+              {
+                "content": {
+                  "$type": "pub.leaflet.blocks.text",
+                  "plaintext": "first item"
+                }
+              },
+              {
+                "content": {
+                  "$type": "pub.leaflet.blocks.text",
+                  "plaintext": "second item"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

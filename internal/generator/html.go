@@ -2,6 +2,7 @@ package generator
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"html/template"
 	"os"
@@ -9,15 +10,20 @@ import (
 	"sort"
 	"time"
 
+	"github.com/ptdewey/cedar/internal/atproto"
 	"github.com/ptdewey/cedar/internal/config"
 	"github.com/ptdewey/cedar/internal/parser"
 )
 
 // Note: fields in this struct are used inside HTML templates, and must be exported.
 type htmlPage struct {
-	Metadata    map[string]any
-	HTMLContent template.HTML
-	AllPages    map[string][]PageInfo // Pages organized by route contentPath
+	Metadata         map[string]any
+	HTMLContent      template.HTML
+	AllPages         map[string][]PageInfo                     // Pages organized by route contentPath
+	ATProtoDocURI    string                                    // AT-URI for this document (empty if not published)
+	ATProtoDID       string                                    // DID for the configured ATProto handle
+	ATProtoPDS       string                                    // PDS service endpoint URL
+	PublicationPages map[string][]atproto.PublicationPageInfo // Keyed by publication config key
 }
 
 // PageInfo is a simplified version of [parser.Page] for template access
@@ -67,8 +73,48 @@ func WriteHTMLFiles(pages []parser.Page, outputDir string, cfg *config.Config) e
 		})
 	}
 
+	// Load ATProto publish state for link tag injection
+	var docURIs map[string]string
+	if cfg.ATProto.Handle != "" {
+		if state, err := atproto.LoadPublishState(); err == nil {
+			docURIs = make(map[string]string, len(state.Documents))
+			for path, doc := range state.Documents {
+				docURIs[path] = doc.ATURI
+			}
+		}
+	}
+
+	// Resolve DID and PDS at build time for template use
+	var did, pds string
+	if cfg.ATProto.Handle != "" {
+		ctx := context.Background()
+		if d, err := atproto.ResolveHandle(ctx, cfg.ATProto.Handle); err == nil {
+			did = d
+			if p, err := atproto.ResolvePDS(ctx, d); err == nil {
+				pds = p
+			}
+		}
+	}
+
+	// Fetch documents for publications marked include_in_build.
+	publicationPages := make(map[string][]atproto.PublicationPageInfo)
+	if pds != "" {
+		for pubKey, pub := range cfg.ATProto.Publications {
+			if !pub.IncludeInBuild {
+				continue
+			}
+			docs, err := atproto.FetchPublicationDocuments(context.Background(), pds, did, pub.URL)
+			if err != nil {
+				// Non-fatal: log and continue so a network hiccup doesn't break the build.
+				fmt.Fprintf(os.Stderr, "warning: fetching documents for publication %q: %v\n", pubKey, err)
+				continue
+			}
+			publicationPages[pubKey] = docs
+		}
+	}
+
 	for _, page := range pages {
-		if err := writePage(page, pagesByRoute, outputDir, cfg); err != nil {
+		if err := writePage(page, pagesByRoute, publicationPages, docURIs, did, pds, outputDir, cfg); err != nil {
 			return err
 		}
 	}
@@ -76,7 +122,7 @@ func WriteHTMLFiles(pages []parser.Page, outputDir string, cfg *config.Config) e
 	return nil
 }
 
-func writePage(page parser.Page, pagesByRoute map[string][]PageInfo, outputDir string, cfg *config.Config) error {
+func writePage(page parser.Page, pagesByRoute map[string][]PageInfo, publicationPages map[string][]atproto.PublicationPageInfo, docURIs map[string]string, did, pds, outputDir string, cfg *config.Config) error {
 	if page.Route == nil {
 		return nil
 	}
@@ -128,6 +174,12 @@ func writePage(page parser.Page, pagesByRoute map[string][]PageInfo, outputDir s
 			}
 			return t.Format("Jan 2, 2006")
 		},
+		"formatTime": func(t time.Time) string {
+			if t.IsZero() {
+				return ""
+			}
+			return t.Format("Jan 2, 2006")
+		},
 	})
 
 	// Parse base template first
@@ -153,10 +205,20 @@ func writePage(page parser.Page, pagesByRoute map[string][]PageInfo, outputDir s
 		return err
 	}
 
+	atURI := ""
+	if docURIs != nil {
+		relPath, _ := filepath.Rel(cfg.ContentDir, page.SourcePath)
+		atURI = docURIs[relPath]
+	}
+
 	data := htmlPage{
-		Metadata:    page.Metadata,
-		HTMLContent: template.HTML(page.Content),
-		AllPages:    pagesByRoute,
+		Metadata:         page.Metadata,
+		HTMLContent:      template.HTML(page.Content),
+		AllPages:         pagesByRoute,
+		ATProtoDocURI:    atURI,
+		ATProtoDID:       did,
+		ATProtoPDS:       pds,
+		PublicationPages: publicationPages,
 	}
 
 	var buf bytes.Buffer

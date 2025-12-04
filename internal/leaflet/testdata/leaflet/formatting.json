@@ -1,0 +1,96 @@
+{
+  "$type": "pub.leaflet.content",
+  "pages": [
+    {
+      "$type": "pub.leaflet.pages.linearDocument",
+      "blocks": [
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.text",
+            "plaintext": "bold",
+            "facets": [
+              {
+                "index": { "byteStart": 0, "byteEnd": 4 },
+                "features": [{ "$type": "pub.leaflet.richtext.facet#bold" }]
+              }
+            ]
+          }
+        },
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.text",
+            "plaintext": "italic",
+            "facets": [
+              {
+                "index": { "byteStart": 0, "byteEnd": 6 },
+                "features": [{ "$type": "pub.leaflet.richtext.facet#italic" }]
+              }
+            ]
+          }
+        },
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.text",
+            "plaintext": "Hello world",
+            "facets": [
+              {
+                "index": { "byteStart": 0, "byteEnd": 5 },
+                "features": [{ "$type": "pub.leaflet.richtext.facet#bold" }]
+              },
+              {
+                "index": { "byteStart": 6, "byteEnd": 11 },
+                "features": [{ "$type": "pub.leaflet.richtext.facet#italic" }]
+              }
+            ]
+          }
+        },
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.text",
+            "plaintext": "Visit the site for info",
+            "facets": [
+              {
+                "index": { "byteStart": 6, "byteEnd": 14 },
+                "features": [
+                  {
+                    "$type": "pub.leaflet.richtext.facet#link",
+                    "uri": "https://example.com"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.header",
+            "plaintext": "Section bold title",
+            "level": 2,
+            "facets": [
+              {
+                "index": { "byteStart": 8, "byteEnd": 12 },
+                "features": [{ "$type": "pub.leaflet.richtext.facet#bold" }]
+              }
+            ]
+          }
+        },
+        {
+          "block": {
+            "$type": "pub.leaflet.blocks.text",
+            "plaintext": "both",
+            "facets": [
+              {
+                "index": { "byteStart": 0, "byteEnd": 4 },
+                "features": [{ "$type": "pub.leaflet.richtext.facet#bold" }]
+              },
+              {
+                "index": { "byteStart": 0, "byteEnd": 4 },
+                "features": [{ "$type": "pub.leaflet.richtext.facet#italic" }]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
