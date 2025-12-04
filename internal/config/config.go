@@ -13,17 +13,19 @@ import (
 
 // TODO: need to support more complicated structure for dynamic routes
 type Config struct {
-	PublishDir      string
-	StaticDir       string
-	ContentDir      string
-	TemplateDir     string
-	CacheDir        string
-	Copyright       string
-	CleanBuild      bool
-	BuildDraft      bool
-	BuildFuture     bool
-	AllowUnsafeHTML bool
-	RSS             RSS
+	PublishDir       string
+	StaticDir        string
+	ContentDir       string
+	TemplateDir      string
+	TemplateExt      string
+	CacheDir         string
+	BaseTemplatePath string
+	Copyright        string
+	CleanBuild       bool
+	BuildDraft       bool
+	BuildFuture      bool
+	AllowUnsafeHTML  bool
+	RSS              RSS
 	// TODO: atom feed support
 	Routes []Route
 }
@@ -44,16 +46,18 @@ type Route struct {
 }
 
 var defaultConfig = Config{
-	PublishDir:      "public",
-	StaticDir:       "static",
-	ContentDir:      "content",
-	TemplateDir:     "templates",
-	CacheDir:        "build",
-	Copyright:       "",
-	CleanBuild:      false,
-	BuildDraft:      false,
-	BuildFuture:     false,
-	AllowUnsafeHTML: false,
+	PublishDir:       "public",
+	StaticDir:        "static",
+	ContentDir:       "content",
+	TemplateDir:      "templates",
+	TemplateExt:      ".tmpl",
+	CacheDir:         "build",
+	BaseTemplatePath: "",
+	Copyright:        "",
+	CleanBuild:       false,
+	BuildDraft:       false,
+	BuildFuture:      false,
+	AllowUnsafeHTML:  false,
 	RSS: RSS{
 		Generate:    false,
 		Title:       "Your Site",

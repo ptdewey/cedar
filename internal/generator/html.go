@@ -9,6 +9,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/ptdewey/cedar/internal/config"
 	"github.com/ptdewey/cedar/internal/parser"
 )
 
@@ -40,7 +41,7 @@ type WritingItem struct {
 	Type  string
 }
 
-func WriteHTMLFiles(pages []parser.Page, outputDir string, templateDir string) error {
+func WriteHTMLFiles(pages []parser.Page, outputDir string, cfg *config.Config) error {
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		return err
 	}
@@ -67,7 +68,7 @@ func WriteHTMLFiles(pages []parser.Page, outputDir string, templateDir string) e
 	}
 
 	for _, page := range pages {
-		if err := writePage(page, pagesByRoute, outputDir, templateDir); err != nil {
+		if err := writePage(page, pagesByRoute, outputDir, cfg); err != nil {
 			return err
 		}
 	}
@@ -75,12 +76,12 @@ func WriteHTMLFiles(pages []parser.Page, outputDir string, templateDir string) e
 	return nil
 }
 
-func writePage(page parser.Page, pagesByRoute map[string][]PageInfo, outputDir string, templateDir string) error {
+func writePage(page parser.Page, pagesByRoute map[string][]PageInfo, outputDir string, cfg *config.Config) error {
 	if page.Route == nil {
 		return nil
 	}
 
-	templatePath := filepath.Join(templateDir, page.Route.Template)
+	templatePath := filepath.Join(cfg.TemplateDir, page.Route.Template)
 
 	// Create an empty template set with helper functions
 	t := template.New("").Funcs(template.FuncMap{
@@ -130,14 +131,17 @@ func writePage(page parser.Page, pagesByRoute map[string][]PageInfo, outputDir s
 	})
 
 	// Parse base template first
-	basePath := filepath.Join(templateDir, "base.html")
-	t, err := t.ParseFiles(basePath)
-	if err != nil {
-		return err
+	var err error
+	if cfg.BaseTemplatePath != "" {
+		basePath := filepath.Join(cfg.TemplateDir, cfg.BaseTemplatePath)
+		t, err = t.ParseFiles(basePath)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Parse all partials
-	partialsPattern := filepath.Join(templateDir, "partials", "*.html")
+	partialsPattern := filepath.Join(cfg.TemplateDir, "partials", "*"+cfg.TemplateExt)
 	t, err = t.ParseGlob(partialsPattern)
 	if err != nil {
 		return err

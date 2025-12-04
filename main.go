@@ -31,7 +31,7 @@ func main() {
 	}
 
 	// Generate HTML files, writing them to the build cache directory.
-	if err := generator.WriteHTMLFiles(pages, cfg.CacheDir, cfg.TemplateDir); err != nil {
+	if err := generator.WriteHTMLFiles(pages, cfg.CacheDir, cfg); err != nil {
 		fmt.Printf("Error writing HTML files: %v\n", err)
 		os.Exit(1)
 	}

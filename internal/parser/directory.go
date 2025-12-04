@@ -13,6 +13,8 @@ func ProcessDirectory(cfg *config.Config) ([]Page, error) {
 	var pages []Page
 
 	for _, route := range cfg.Routes {
+		// TODO: allow creating routes from templates w/o content file
+
 		contentPath := filepath.Join(cfg.ContentDir, route.ContentPath)
 
 		info, err := os.Stat(contentPath)
