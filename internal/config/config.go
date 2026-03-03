@@ -37,6 +37,9 @@ type Publication struct {
 	ShowMentions   *bool       `toml:"show_mentions" json:"show_mentions" yaml:"show_mentions"`
 	ShowPrevNext   *bool       `toml:"show_prev_next" json:"show_prev_next" yaml:"show_prev_next"`
 	BasicTheme     *BasicTheme `toml:"basic_theme" json:"basic_theme" yaml:"basic_theme"`
+	// ContentType controls the document content format used when publishing.
+	// Valid values are "markdown" (default) and "leaflet".
+	ContentType string `toml:"content_type" json:"content_type" yaml:"content_type"`
 	// RKey pins this publication to an existing ATProto record key. When set,
 	// cedar will not touch the record and will reuse the existing AT-URI.
 	RKey string `toml:"rkey" json:"rkey" yaml:"rkey"`

@@ -58,8 +58,8 @@ github.com/prometheus/common v0.45.0 h1:2BGz0eBc2hdMDLnO/8n0jeB3oPrt2D08CekT0lne
 github.com/prometheus/common v0.45.0/go.mod h1:YJmSTw9BoKxJplESWWxlbyttQR4uaEcGyv9MZjVOJsY=
 github.com/prometheus/procfs v0.12.0 h1:jluTpSng7V9hY0O2R9DzzJHYb2xULk9VTR1V1R/k6Bo=
 github.com/prometheus/procfs v0.12.0/go.mod h1:pcuDEFsWDnvcgNzo4EEweacyhjeA9Zk3cnaOZAZEfOo=
-github.com/ptdewey/standard-site-go v0.0.0-20260303023323-cecb8fc5bada h1:lM/s5onsDnAcSLkMUwE+mOU0+p3se4oayJ4uHhUNgd4=
-github.com/ptdewey/standard-site-go v0.0.0-20260303023323-cecb8fc5bada/go.mod h1:4ikasQUkIii82rfqjPIDefVFiVPGnCYxXvpfR1331u4=
+github.com/ptdewey/standard-site-go v0.0.0-20260303024214-f7c6167b4015 h1:p+HD6PmHd9x6kOKQnankKZa3pv8DoTfoPdHiu5VRtSY=
+github.com/ptdewey/standard-site-go v0.0.0-20260303024214-f7c6167b4015/go.mod h1:GVvlaM02LMdHq3WP9f466cbPrbGMXJmpCLFLHXmzYm8=
 github.com/spaolacci/murmur3 v1.1.0 h1:7c1g84S4BPRrfL5Xrdp6fOJ206sU9y293DDHaoy0bLI=
 github.com/spaolacci/murmur3 v1.1.0/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
@@ -69,8 +69,8 @@ github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf
 github.com/whyrusleeping/cbor-gen v0.2.1-0.20241030202151-b7a6831be65e h1:28X54ciEwwUxyHn9yrZfl5ojgF4CBNLWX7LR0rvBkf4=
 github.com/whyrusleeping/cbor-gen v0.2.1-0.20241030202151-b7a6831be65e/go.mod h1:pM99HXyEbSQHcosHc0iW7YFmwnscr+t9Te4ibko05so=
 github.com/yuin/goldmark v1.4.5/go.mod h1:rmuwmfZ0+bvzB24eSC//bk1R1Zp3hM0OXYv/G2LIilg=
-github.com/yuin/goldmark v1.7.13 h1:GPddIs617DnBLFFVJFgpo1aBfe/4xcvMc3SB5t/D0pA=
-github.com/yuin/goldmark v1.7.13/go.mod h1:ip/1k0VRfGynBgxOz0yCqHrbZXhcjxyuS66Brc7iBKg=
+github.com/yuin/goldmark v1.7.16 h1:n+CJdUxaFMiDUNnWC3dMWCIQJSkxH4uz3ZwQBkAlVNE=
+github.com/yuin/goldmark v1.7.16/go.mod h1:ip/1k0VRfGynBgxOz0yCqHrbZXhcjxyuS66Brc7iBKg=
 github.com/yuin/goldmark-highlighting v0.0.0-20220208100518-594be1970594 h1:yHfZyN55+5dp1wG7wDKv8HQ044moxkyGq12KFFMFDxg=
 github.com/yuin/goldmark-highlighting v0.0.0-20220208100518-594be1970594/go.mod h1:U9ihbh+1ZN7fR5Se3daSPoz1CGF9IYtSvWwVQtnzGHU=
 gitlab.com/yawning/secp256k1-voi v0.0.0-20230925100816-f2616030848b h1:CzigHMRySiX3drau9C6Q5CAbNIApmLdat5jPMqChvDA=

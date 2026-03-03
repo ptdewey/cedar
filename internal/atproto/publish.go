@@ -1,6 +1,7 @@
 package atproto
 
 import (
+	"bytes"
 	"context"
 	"crypto/md5"
 	"encoding/json"
@@ -18,9 +19,20 @@ import (
 	"github.com/yuin/goldmark/text"
 )
 
-// newMDParser returns a goldmark parser configured with GFM and Footnote extensions.
-func newMDParser() gparser.Parser {
-	return goldmark.New(goldmark.WithExtensions(extension.GFM, extension.Footnote)).Parser()
+// newMD returns a goldmark instance configured with GFM and Footnote extensions.
+func newMD() goldmark.Markdown {
+	return goldmark.New(goldmark.WithExtensions(extension.GFM, extension.Footnote))
+}
+
+// buildContent converts page markdown to the appropriate content value for a
+// site.standard.document record. "leaflet" converts to leaflet blocks;
+// anything else (default "markdown") wraps the raw markdown text.
+func buildContent(contentType string, mdParser gparser.Parser, page parser.Page) any {
+	if contentType == "leaflet" {
+		source := []byte(page.RawMarkdown)
+		return libleaflet.Convert(source, mdParser.Parse(text.NewReader(source)))
+	}
+	return markdownContent{Type: "site.standard.content.markdown", Text: page.RawMarkdown}
 }
 
 // DryRun prints the records that would be published as JSON without making
@@ -29,7 +41,8 @@ func DryRun(cfg *config.Config, pages []parser.Page) error {
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
 
-	mdParser := newMDParser()
+	md := newMD()
+	mdParser := md.Parser()
 
 	for pubKey, pub := range cfg.ATProto.Publications {
 		pubRecord := buildPublicationRecord(pub)
@@ -45,13 +58,11 @@ func DryRun(cfg *config.Config, pages []parser.Page) error {
 				continue
 			}
 
-			source := []byte(page.RawMarkdown)
-			astDoc := mdParser.Parse(text.NewReader(source))
-			leafletDoc := libleaflet.Convert(source, astDoc)
+			content := buildContent(pub.ContentType, mdParser, page)
 
 			title, _ := page.Metadata["title"].(string)
 			fmt.Printf("\n=== site.standard.document: %s ===\n", title)
-			if err := enc.Encode(buildDocumentRecord(page, pubURI, cfg, leafletDoc, "")); err != nil {
+			if err := enc.Encode(buildDocumentRecord(page, pubURI, cfg, content, "")); err != nil {
 				return err
 			}
 		}
@@ -66,7 +77,8 @@ func Preview(cfg *config.Config, pages []parser.Page, outDir string) error {
 		return fmt.Errorf("creating preview directory: %w", err)
 	}
 
-	mdParser := newMDParser()
+	md := newMD()
+	mdParser := md.Parser()
 
 	var count int
 	for _, page := range pages {
@@ -74,10 +86,17 @@ func Preview(cfg *config.Config, pages []parser.Page, outDir string) error {
 			continue
 		}
 
-		source := []byte(page.RawMarkdown)
-		doc := mdParser.Parse(text.NewReader(source))
-		content := libleaflet.Convert(source, doc)
-		body := libleaflet.RenderHTML(content)
+		pub := cfg.ATProto.Publications[page.Route.Publish]
+		var body string
+		if pub.ContentType == "leaflet" {
+			source := []byte(page.RawMarkdown)
+			body = libleaflet.RenderHTML(libleaflet.Convert(source, mdParser.Parse(text.NewReader(source))))
+		} else {
+			var buf bytes.Buffer
+			if err := md.Convert([]byte(page.RawMarkdown), &buf); err == nil {
+				body = buf.String()
+			}
+		}
 		htmlOut := "<!DOCTYPE html>\n<html><head><meta charset=\"utf-8\"></head><body>\n" + body + "\n</body></html>\n"
 
 		slug := strings.TrimSuffix(filepath.Base(page.SourcePath), filepath.Ext(page.SourcePath))
@@ -143,7 +162,7 @@ func Publish(cfg *config.Config, pages []parser.Page) error {
 		}
 	}
 
-	mdParser := newMDParser()
+	mdParser := newMD().Parser()
 
 	// Sync documents per publication
 	var created, updated, skipped int
@@ -169,13 +188,12 @@ func Publish(cfg *config.Config, pages []parser.Page) error {
 				continue
 			}
 
-			source := []byte(page.RawMarkdown)
-			astDoc := mdParser.Parse(text.NewReader(source))
-			leafletDoc := libleaflet.Convert(source, astDoc)
+			pub := cfg.ATProto.Publications[pubKey]
+			content := buildContent(pub.ContentType, mdParser, page)
 
 			if exists && existing.Publication == pubKey {
 				fmt.Printf("  Updating: %s\n", title)
-				record := buildDocumentRecord(page, pubState.ATURI, cfg, leafletDoc, "/"+existing.RKey)
+				record := buildDocumentRecord(page, pubState.ATURI, cfg, content, "/"+existing.RKey)
 				if err := client.PutRecord(ctx, "site.standard.document", existing.RKey, record); err != nil {
 					return fmt.Errorf("updating document %q: %w", title, err)
 				}
@@ -189,7 +207,7 @@ func Publish(cfg *config.Config, pages []parser.Page) error {
 			} else {
 				fmt.Printf("  Creating: %s\n", title)
 				// Create without path first to get the rkey assigned by the PDS.
-				record := buildDocumentRecord(page, pubState.ATURI, cfg, leafletDoc, "")
+				record := buildDocumentRecord(page, pubState.ATURI, cfg, content, "")
 				uri, rkey, err := client.CreateRecord(ctx, "site.standard.document", record)
 				if err != nil {
 					return fmt.Errorf("creating document %q: %w", title, err)

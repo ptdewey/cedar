@@ -8,6 +8,12 @@ import (
 	"github.com/ptdewey/standard-site-go/standard"
 )
 
+// markdownContent is the content value for site.standard.content.markdown documents.
+type markdownContent struct {
+	Type string `json:"$type"`
+	Text string `json:"text"`
+}
+
 func boolPref(p *bool) bool {
 	return p == nil || *p
 }
@@ -47,9 +53,8 @@ func buildDocumentRecord(page parser.Page, publicationURI string, cfg *config.Co
 	title, _ := page.Metadata["title"].(string)
 
 	opts := []standard.DocumentOption{
-		standard.WithContent(content),
-		standard.WithTextContent(page.PlainText),
 		standard.WithUpdatedAt(time.Now()),
+		standard.WithContent(content),
 	}
 	if path != "" {
 		opts = append(opts, standard.WithPath(path))
